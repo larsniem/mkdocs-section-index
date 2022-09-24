@@ -1,7 +1,5 @@
 import collections
 import logging
-from typing_extensions import Required
-from urllib import request
 
 import mkdocs.utils
 from jinja2 import Environment
