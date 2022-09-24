@@ -1,11 +1,14 @@
 import collections
 import logging
+from typing_extensions import Required
+from urllib import request
 
 import mkdocs.utils
 from jinja2 import Environment
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.nav import Navigation, Section
 from mkdocs.structure.pages import Page
+from mkdocs.config import config_options
 
 from . import SectionPage, rewrites
 
@@ -16,6 +19,11 @@ log.addFilter(mkdocs.utils.warning_filter)
 
 
 class SectionIndexPlugin(BasePlugin):
+    config_scheme = (
+        # Apply Nummerbing 
+        ('title_src', config_options.Type(str, default='section', required=False)),
+    )
+
     def on_nav(self, nav: Navigation, config, files) -> Navigation:
         todo = collections.deque((nav.items,))
         while todo:
@@ -33,7 +41,10 @@ class SectionIndexPlugin(BasePlugin):
                     page.__class__ = SectionPage
                     assert isinstance(page, SectionPage)
                     page.is_section = page.is_page = True
-                    page.title = section.title
+                    if(self.config['title_src'] == 'page'):
+                        section.title = page.title
+                    else:
+                        page.title = section.title
                     # The page leaves the section but takes over children that used to be its peers.
                     section.children.pop(0)
                     page.children = section.children
